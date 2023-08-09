@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class NewsListWidget extends StatefulWidget {
   final String requestString;
@@ -20,7 +21,7 @@ class _WithNewsListWidgetNewState extends State<NewsListWidget> {
 
   Future<List> fetchDataNews() async {
     final url =
-        "https://newsapi.org/v2/everything?q=${widget.requestString}&apiKey=cac7862032ad4ea69b21607a0038d32d";
+        "https://newsapi.org/v2/everything?q=${widget.requestString}&apiKey=bc300c7edb654402a633f5c6a61aa191";
     final response = await get(Uri.parse(url));
     var newsList = [];
     final jsonData = jsonDecode(response.body) as Map;
@@ -48,6 +49,7 @@ class _WithNewsListWidgetNewState extends State<NewsListWidget> {
                     var description = "";
                     var publishTime = "";
                     var urlImage = "";
+                    var newsUrl = "";
 
                     if (snapshot.data![index]["source"]["name"] != null &&
                         snapshot.data![index]["source"]["name"] != "") {
@@ -62,6 +64,11 @@ class _WithNewsListWidgetNewState extends State<NewsListWidget> {
                     if (snapshot.data![index]["description"] != null &&
                         snapshot.data![index]["description"] != "") {
                       description = snapshot.data![index]["description"];
+                    }
+
+                    if (snapshot.data![index]["url"] != null &&
+                        snapshot.data![index]["url"] != "") {
+                      newsUrl = snapshot.data![index]["url"];
                     }
 
                     if (snapshot.data![index]["publishedAt"] != null &&
@@ -101,40 +108,49 @@ class _WithNewsListWidgetNewState extends State<NewsListWidget> {
                                 : Container(),
                             Flexible(
                               flex: 2,
-                              child: Padding(
-                                padding: const EdgeInsets.only(left: 8.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    source != ""
-                                        ? Text("Источник: $source")
-                                        : Container(),
-                                    title != ""
-                                        ? Text(
-                                            title,
-                                            style: const TextStyle(
-                                                fontWeight: FontWeight.bold),
-                                          )
-                                        : Container(),
-                                    description != ""
-                                        ? Text(
-                                            description,
-                                            overflow: TextOverflow.ellipsis,
-                                          )
-                                        : Container(),
-                                    publishTime != ""
-                                        ? Align(
-                                            alignment: Alignment.centerRight,
-                                            child: Text(
-                                              publishTime,
-                                              textAlign: TextAlign.right,
-                                              style: const TextStyle(
-                                                  color: Colors.grey),
-                                            ))
-                                        : Container(),
-                                  ],
-                                ),
-                              ),
+                              child: InkWell(
+                                  onTap: () {
+                                    //TODO alert if link not found
+                                    launchUrl(Uri.parse(newsUrl),
+                                        mode: LaunchMode.externalApplication);
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(left: 8.0),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        source != ""
+                                            ? Text("Источник: $source")
+                                            : Container(),
+                                        title != ""
+                                            ? Text(
+                                                title,
+                                                style: const TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              )
+                                            : Container(),
+                                        description != ""
+                                            ? Text(
+                                                description,
+                                                overflow: TextOverflow.ellipsis,
+                                              )
+                                            : Container(),
+                                        publishTime != ""
+                                            ? Align(
+                                                alignment:
+                                                    Alignment.centerRight,
+                                                child: Text(
+                                                  publishTime,
+                                                  textAlign: TextAlign.right,
+                                                  style: const TextStyle(
+                                                      color: Colors.grey),
+                                                ))
+                                            : Container(),
+                                      ],
+                                    ),
+                                  )),
                             ),
                           ],
                         ),
