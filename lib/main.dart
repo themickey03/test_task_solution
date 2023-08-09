@@ -52,6 +52,7 @@ class _MyHomePageState extends State<MyHomePage> {
         },),
         appBar: AppBar(
           backgroundColor: ThemeData.light().primaryColor,
+          elevation: 0,
           title: isSearched ? Text(inputText) : const Text("NewsViewer"),
           actions: [
             isSearched ? IconButton(

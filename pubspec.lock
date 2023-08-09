@@ -181,6 +181,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.11.0"
+  sticky_headers:
+    dependency: "direct main"
+    description:
+      name: sticky_headers
+      sha256: e0ad6f71f9b642d84f7dacf4dbb1d1722e4cfdea92dbcc57bbbf6ae39aecb393
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.0"
   stream_channel:
     dependency: transitive
     description:
