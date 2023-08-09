@@ -26,6 +26,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   var inputText = "";
+  var lastSearchText = "";
   var searched = false;
   var isSearched = false;
 
@@ -41,11 +42,18 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  _changeLastSearchText(String text){
+    setState(() {
+      lastSearchText = text;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         drawer: SideMenuWidget(onResult: (result) {
-          _changeInputText(result);
+          _changeLastSearchText(result);
+          _changeInputText("");
           setState(() {
             isSearched = true;
           });
@@ -53,7 +61,7 @@ class _MyHomePageState extends State<MyHomePage> {
         appBar: AppBar(
           backgroundColor: ThemeData.light().primaryColor,
           elevation: 0,
-          title: isSearched ? Text(inputText) : const Text("NewsViewer"),
+          title: isSearched ? Text(lastSearchText) : const Text("NewsViewer"),
           actions: [
             isSearched ? IconButton(
               icon: const Icon(Icons.search),
@@ -69,18 +77,31 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Column(
               children: [
                 !isSearched
-                    ? TextField(
-                        onChanged: (text) {
-                          _changeInputText(text);
-                        },
-                        decoration: InputDecoration(
-                            suffixIcon: IconButton(
-                                onPressed: () => {_changeSetOfSearch()},
-                                icon: const Icon(Icons.search))),
-                      )
+                    ? Padding(
+                      padding: const EdgeInsets.only(left:8.0, right: 8.0),
+                      child: TextField(
+                          onChanged: (text) {
+                            _changeInputText(text);
+                          },
+                          decoration: InputDecoration(
+                            hintText: "Введите тему для поиска",
+                              suffixIcon: IconButton(
+                                  onPressed: () {
+                                    if (inputText.isNotEmpty) {
+                                      _changeSetOfSearch();
+                                      _changeLastSearchText(inputText);
+                                      _changeInputText("");
+                                    }
+                                    else{
+                                      _changeSetOfSearch();
+                                    }
+                                  },
+                                  icon: inputText.isNotEmpty ? const Icon(Icons.search) : const Icon(Icons.close))),
+                        ),
+                    )
                     : Container(),
                 isSearched
-                    ? Expanded(child: NewsListWidget(requestString: inputText))
+                    ? Expanded(child: NewsListWidget(requestString: lastSearchText))
                     : Container()
               ],
             ),
