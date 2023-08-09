@@ -7,15 +7,14 @@ import 'package:path_provider/path_provider.dart';
 import 'news_model.dart';
 
 class DatabaseHelper {
-  static final _databaseName = "newsApp.db";
-  static final _databaseVersion = 1;
+  static const _databaseName = "newsApp.db";
+  static const _databaseVersion = 1;
 
-  static final table = 'news';
+  static const table = 'news';
 
-  static final columnId = '_id';
-  static final columnSearchText = 'searchText';
-  static final columnRequestResult = 'requestResult';
-  static final columnTimeOfRequest = 'timeOfRequest';
+  static const columnId = '_id';
+  static const columnSearchText = 'searchText';
+  static const columnRequestResult = 'requestResult';
 
   DatabaseHelper._privateConstructor();
   static final DatabaseHelper instance = DatabaseHelper._privateConstructor();
@@ -23,8 +22,6 @@ class DatabaseHelper {
   static Database? _database;
   Future<Database> get database async {
     if (_database != null) return _database!;
-
-    // Lazily instantiate the database if unavailable
     _database = await _initDatabase();
     return _database!;
   }
@@ -41,8 +38,7 @@ class DatabaseHelper {
            CREATE TABLE $table (
              $columnId INTEGER PRIMARY KEY AUTOINCREMENT,
              $columnSearchText TEXT NOT NULL,
-             $columnRequestResult TEXT,
-             $columnTimeOfRequest TEXT NOT NULL
+             $columnRequestResult TEXT
            )
            ''');
   }

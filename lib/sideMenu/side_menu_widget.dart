@@ -23,6 +23,12 @@ class _WithSideMenuWidgetNewState extends State<SideMenuWidget> {
     _loadNews();
   }
 
+  _changeIsEditing() {
+    setState(() {
+      isEditing = !isEditing;
+    });
+  }
+
   Future<List> fetchDataNews(String request) async {
     final url =
         "https://newsapi.org/v2/everything?q=$request&sortBy=publishedAt&apiKey=09bc85a680f14a6c8880265c4454c3dc";
@@ -42,18 +48,11 @@ class _WithSideMenuWidgetNewState extends State<SideMenuWidget> {
     });
   }
 
-  _changeIsEditing() {
-    setState(() {
-      isEditing = !isEditing;
-    });
-  }
-
   void _addNews(
-      String searchText, String requestResult, String timeOfRequest) async {
+      String searchText, String requestResult) async {
     NewsModel newNews = NewsModel(
         searchText: searchText,
-        requestResult: requestResult,
-        timeOfRequest: timeOfRequest);
+        requestResult: requestResult);
     int id = await dbHelper.insert(newNews);
     setState(() {
       newNews.id = id;
@@ -61,13 +60,11 @@ class _WithSideMenuWidgetNewState extends State<SideMenuWidget> {
     });
   }
 
-  void _updateNews(int index, String searchText, String requestResult,
-      String timeOfRequest) async {
+  void _updateNews(int index, String searchText, String requestResult) async {
     NewsModel updatedNews = NewsModel(
         id: _news[index].id,
         searchText: searchText,
-        requestResult: requestResult,
-        timeOfRequest: timeOfRequest);
+        requestResult: requestResult);
     await dbHelper.update(updatedNews);
     setState(() {
       _news[index] = updatedNews;
@@ -133,7 +130,7 @@ class _WithSideMenuWidgetNewState extends State<SideMenuWidget> {
                                 child: const Text('Добавить'),
                                 onPressed: () async {
                                   var requestResult = await fetchDataNews(textFieldController.value.text);
-                                  _addNews(textFieldController.value.text, jsonEncode(requestResult), DateTime.now().toString());
+                                  _addNews(textFieldController.value.text, jsonEncode(requestResult));
                                   Navigator.of(context).pop();
                                 },
                               ),
@@ -171,12 +168,13 @@ class _WithSideMenuWidgetNewState extends State<SideMenuWidget> {
           ListView.builder(
               shrinkWrap: true,
               itemCount: _news.length,
+              reverse: true,
               itemBuilder: (context, index) {
                 return Column(
                   children: [
                     InkWell(
                       onTap: (){
-                        widget.onResult(_news[index].searchText);
+                        widget.onResult(_news[index]);
                         Navigator.of(context).pop();
                       },
                       child: Row(
@@ -206,8 +204,7 @@ class _WithSideMenuWidgetNewState extends State<SideMenuWidget> {
                                                   index,
                                                   textFieldController
                                                       .value.text,
-                                                  _news[index].requestResult,
-                                                  DateTime.now().toString());
+                                                  _news[index].requestResult);
                                               Navigator.of(context).pop();
                                             },
                                           ),
