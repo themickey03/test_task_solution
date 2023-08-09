@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:test_task_solution/news/news_list_widget.dart';
+import 'package:test_task_solution/sideMenu/side_menu_widget.dart';
 
 void main() {
   runApp(const MyApp());
@@ -26,29 +27,62 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   var inputText = "";
   var searched = false;
+  var isSearched = false;
+
+  _changeSetOfSearch() {
+    setState(() {
+      isSearched = !isSearched;
+    });
+  }
+  
+  _changeInputText(String text){
+    setState(() {
+      inputText = text;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        drawer: SideMenuWidget(onResult: (result) {
+          _changeInputText(result);
+          setState(() {
+            isSearched = true;
+          });
+        },),
         appBar: AppBar(
-          title: const Text("NewsViewer"),
+          backgroundColor: ThemeData.light().primaryColor,
+          title: isSearched ? Text(inputText) : const Text("NewsViewer"),
+          actions: [
+            isSearched ? IconButton(
+              icon: const Icon(Icons.search),
+              onPressed: (){
+                _changeSetOfSearch();
+              },
+            ) : Container()
+          ],
         ),
         body: Align(
           alignment: Alignment.topCenter,
-          child: TextField(
-            onChanged: (text) {
-              setState(() {
-                inputText = text;
-              });
-            },
-            decoration: InputDecoration(
-                suffixIcon: IconButton(
-                    onPressed: () => {
-                          Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) =>
-                                  NewsListWidget(requestString: inputText)))
+          child: SizedBox(
+            child: Column(
+              children: [
+                !isSearched
+                    ? TextField(
+                        onChanged: (text) {
+                          _changeInputText(text);
                         },
-                    icon: const Icon(Icons.search))),
+                        decoration: InputDecoration(
+                            suffixIcon: IconButton(
+                                onPressed: () => {_changeSetOfSearch()},
+                                icon: const Icon(Icons.search))),
+                      )
+                    : Container(),
+                isSearched
+                    ? Expanded(child: NewsListWidget(requestString: inputText))
+                    : Container()
+              ],
+            ),
           ),
         ));
   }

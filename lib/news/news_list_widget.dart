@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
+import 'package:intl/intl.dart';
 
 class NewsListWidget extends StatefulWidget {
   final String requestString;
@@ -36,44 +37,128 @@ class _WithNewsListWidgetNewState extends State<NewsListWidget> {
       builder: (BuildContext context, AsyncSnapshot<List> snapshot) {
         Widget children;
         if (snapshot.hasData) {
-          if (snapshot.data!.isNotEmpty){
+          if (snapshot.data!.isNotEmpty) {
             children = Padding(
-              padding: const EdgeInsets.only(top: 10.0),
+              padding: const EdgeInsets.all(10.0),
               child: ListView.builder(
                   itemCount: snapshot.data!.length,
                   itemBuilder: (context, index) {
+                    var source = "";
+                    var title = "";
+                    var description = "";
+                    var publishTime = "";
+                    var urlImage = "";
+
+                    if (snapshot.data![index]["source"]["name"] != null &&
+                        snapshot.data![index]["source"]["name"] != "") {
+                      source = snapshot.data![index]["source"]["name"];
+                    }
+
+                    if (snapshot.data![index]["title"] != null &&
+                        snapshot.data![index]["title"] != "") {
+                      title = snapshot.data![index]["title"];
+                    }
+
+                    if (snapshot.data![index]["description"] != null &&
+                        snapshot.data![index]["description"] != "") {
+                      description = snapshot.data![index]["description"];
+                    }
+
+                    if (snapshot.data![index]["publishedAt"] != null &&
+                        snapshot.data![index]["publishedAt"] != "") {
+                      try {
+                        publishTime = DateFormat('dd-MM-yyyy HH:mm').format(
+                            DateTime.parse(
+                                snapshot.data![index]["publishedAt"]));
+                      } on Exception catch (_) {
+                        publishTime = "";
+                      }
+                    }
+
+                    if (snapshot.data![index]["urlToImage"] != null &&
+                        snapshot.data![index]["urlToImage"] != "") {
+                      urlImage = snapshot.data![index]["urlToImage"];
+                    }
                     return Column(
                       children: [
-                        Text("Source: ${snapshot.data![index]["source"]["name"]}"),
-                        Text("Title: ${snapshot.data![index]["title"]}"),
-                        Text(
-                            "Description: ${snapshot.data![index]["description"]}"),
-                        Text(
-                            "Publish Time: ${snapshot.data![index]["publishedAt"]}"),
+                        Row(
+                          children: [
+                            urlImage != ""
+                                ? Flexible(
+                                    child: Column(
+                                      children: [
+                                        SizedBox(
+                                          height: 100,
+                                          width: 100,
+                                          child: Image.network(
+                                            urlImage,
+                                            fit: BoxFit.cover,
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  )
+                                : Container(),
+                            Flexible(
+                              flex: 2,
+                              child: Padding(
+                                padding: const EdgeInsets.only(left: 8.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    source != ""
+                                        ? Text("Источник: $source")
+                                        : Container(),
+                                    title != ""
+                                        ? Text(
+                                            title,
+                                            style: const TextStyle(
+                                                fontWeight: FontWeight.bold),
+                                          )
+                                        : Container(),
+                                    description != ""
+                                        ? Text(
+                                            description,
+                                            overflow: TextOverflow.ellipsis,
+                                          )
+                                        : Container(),
+                                    publishTime != ""
+                                        ? Align(
+                                            alignment: Alignment.centerRight,
+                                            child: Text(
+                                              publishTime,
+                                              textAlign: TextAlign.right,
+                                              style: const TextStyle(
+                                                  color: Colors.grey),
+                                            ))
+                                        : Container(),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                         const Divider()
                       ],
                     );
                   }),
             );
+          } else {
+            children = Align(
+                alignment: Alignment.center,
+                child: Text(
+                  'Новостей на тему "${widget.requestString}" не найдено.',
+                  textAlign: TextAlign.center,
+                ));
           }
-          else{
-            children = Text('Новостей на тему "${widget.requestString}" не найдено.');
-          }
-        }
-        else if (snapshot.hasError){
+        } else if (snapshot.hasError) {
           children = const Text("Error");
-        }
-        else{
+        } else {
           children = const CircularProgressIndicator();
         }
-        return Scaffold(
-          appBar: AppBar(
-            title: Text(widget.requestString),
-          ),
-          body: Align(
-            alignment: Alignment.center,
-            child: children,
-          ),
+        return Align(
+          alignment: Alignment.center,
+          child: children,
         );
       },
     );
