@@ -29,6 +29,7 @@ class _WithSideMenuWidgetNewState extends State<SideMenuWidget> {
     });
   }
 
+
   Future<List> fetchDataNews(String request) async {
     final url =
         "https://newsapi.org/v2/everything?q=$request&sortBy=publishedAt&apiKey=09bc85a680f14a6c8880265c4454c3dc";
@@ -199,12 +200,13 @@ class _WithSideMenuWidgetNewState extends State<SideMenuWidget> {
                                         actions: <Widget>[
                                           MaterialButton(
                                             child: const Text('Изменить'),
-                                            onPressed: () {
+                                            onPressed: () async {
+                                              var requestResult = await fetchDataNews(textFieldController.value.text);
                                               _updateNews(
                                                   index,
                                                   textFieldController
                                                       .value.text,
-                                                  _news[index].requestResult);
+                                                  jsonEncode(requestResult));
                                               Navigator.of(context).pop();
                                             },
                                           ),
